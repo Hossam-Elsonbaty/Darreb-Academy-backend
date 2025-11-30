@@ -1,10 +1,10 @@
-
-import dotenv from "dotenv";  
+import dotenv from "dotenv";
 import express from "express";
-import cors from "cors";      
+import cors from "cors";
 import connectDB from "./config/database.js";
-import errorHandler from "./middleware/errorHandler.js"; 
-import authRoutes from "./routes/authRoutes.js"; 
+import errorHandler from "./middleware/errorHandler.js";
+import authRoutes from "./routes/authRoutes.js";
+import usersRoutes from "./routes/usersRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +20,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", usersRoutes);
 
 app.use(errorHandler);
 
