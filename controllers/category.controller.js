@@ -60,6 +60,7 @@ const updateCategory = async (req, res) => {
     }
     let category = await Category.findById(id);
     let updatedCategory = {
+      name: name|| category.name,
       name_ar: name_ar || category.name_ar,
       description: description || category.description,
       description_ar: description_ar || category.description_ar,
