@@ -13,6 +13,7 @@ const register = asyncHandler(async (req, res, next) => {
     email,
     passwordHash,
     fullName,
+    profilePic,
     role: "student",
   });
   res.status(201).json({
@@ -21,6 +22,7 @@ const register = asyncHandler(async (req, res, next) => {
       _id: user._id,
       email: user.email,
       fullName: user.fullName,
+      profilePic: user.profilePic,
       role: user.role,
       token: generateToken(user._id),
     },
@@ -37,6 +39,7 @@ const login = asyncHandler(async (req, res, next) => {
         _id: user._id,
         email: user.email,
         fullName: user.fullName,
+        profilePic: user.profilePic,
         role: user.role,
         token: generateToken(user._id),
       },
