@@ -10,20 +10,19 @@ import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 const app = express();
-app.use(cors());
 
-const allowedOrigins = [
-  'http://localhost:4200',  
-  'http://localhost:3000',  
-  'http://localhost:3001',  
-  'http://127.0.0.1:4200',  
-];
-
-app.use(cors({
-  origin: allowedOrigins,
+const corsOptions = {
+  origin: ['https://al-arqam-academy.vercel.app', 
+  'https://alarqam-academy-dashboard.vercel.app',
+  'https://admin.alarqamacademy.org',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://alarqamacademy.org','https://www.alarqamacademy.org'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  allowedHeaders: '*',
+};
+
+app.use(cors(corsOptions));
 
 app.options('*', cors());
 
