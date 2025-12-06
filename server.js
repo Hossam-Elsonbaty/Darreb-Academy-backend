@@ -10,38 +10,20 @@ import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 const app = express();
-// app.use(cors());
-// app.use(cors({
-//   origin: [
-//     'http://localhost:4200',
-//     'http://localhost:3000',
-//     'http://localhost:3001',
-//   ],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-// }));
-
+app.use(cors());
 
 const allowedOrigins = [
-  'http://localhost:4200',  // Angular default
-  'http://localhost:3000',  // If you serve frontend here sometimes
-  'http://localhost:3001',  // Extra dev ports
-  'http://127.0.0.1:4200',  // Sometimes needed
+  'http://localhost:4200',  
+  'http://localhost:3000',  
+  'http://localhost:3001',  
+  'http://127.0.0.1:4200',  
 ];
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, Postman, curl)
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.options('*', cors());
 
