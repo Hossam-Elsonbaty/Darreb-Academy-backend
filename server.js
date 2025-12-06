@@ -14,7 +14,7 @@ const app = express();
 app.use(cors(
   {
     origin: [
-      'http://localhost:4200',
+      'http://localhost:4200/login',
       'http://localhost:3000',
       'http://localhost:3001',
     ],
