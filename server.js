@@ -10,9 +10,6 @@ import cartRoutes from "./routes/cartRoutes.js";
 
 dotenv.config();
 const app = express();
-
-connectDB();
-
 app.use(cors(
   {
     origin: '*',
@@ -20,9 +17,13 @@ app.use(cors(
     allowedHeaders: ['Content-Type', 'Authorization'], 
   }
 ));
+app.options('*', cors());
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+connectDB();
 
 app.get("/", (req, res) => {
   res.json({ message: "Course Management API is running" });
