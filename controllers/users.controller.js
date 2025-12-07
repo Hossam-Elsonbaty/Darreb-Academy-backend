@@ -21,10 +21,10 @@ const createUser = asyncHandler(async (req, res, next) => {
 });
 
 // Get All Users
-const getAllUses = asyncHandler(async (req, res, next) => {
+const getAllUsers = asyncHandler(async (req, res, next) => {
   let users = await User.find({});
   if (!users) {
-    return next(new AppError("No uses registered yet", 404));
+    return next(new AppError("No users registered yet", 404));
   }
   res.status(200).json(users);
 });
@@ -92,4 +92,4 @@ const deleteUser = asyncHandler(async (req, res, next) => {
   res.status(200).json("user deleted successfully");
 });
 
-export { createUser, getAllUses, getUserById, deleteUser, updateUser };
+export { createUser, getAllUsers, getUserById, deleteUser, updateUser };
