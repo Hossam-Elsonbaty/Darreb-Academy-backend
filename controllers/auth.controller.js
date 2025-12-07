@@ -5,7 +5,7 @@ import  generateToken  from "../utils/generateToken.js";
 import AppError from "../utils/appError.js";
 
 const register = asyncHandler(async (req, res, next) => {
-  const { email, password, fullName } = req.body;
+  const { email, password, fullName , profilePic} = req.body;
   const userExists = await User.findOne({ email });
   if (userExists) return next(new AppError("User already exists", 409)); 
   const salt = await bcrypt.genSalt(10);
@@ -14,7 +14,7 @@ const register = asyncHandler(async (req, res, next) => {
     email,
     passwordHash,
     fullName,
-    profilePic,
+    profilePic:profilePic || null,
     role: "student",
   });
   res.status(201).json({
