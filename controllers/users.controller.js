@@ -5,23 +5,23 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 const createUser = asyncHandler(async (req, res, next) => {
-  let user = await User.findOne({ email: req.body.email });
-  if (user) return next(new AppError("Email Already Exist", 409));
-  let result = new User(req.body);
-  await result.save();
-  // const { email, password, fullName , profilePic, role} = req.body;
-  // const userExists = await User.findOne({ email });
-  // if (userExists) return next(new AppError("User already exists", 409)); 
-  // const salt = await bcrypt.genSalt(10);
-  // const passwordHash = await bcrypt.hash(password, salt);
-  //   const user = await User.create({
-  //     email,
-  //     passwordHash,
-  //     fullName,
-  //     profilePic,
-  //     role,
-  //   });
-    res.status(201).json({ message: "success", result });
+  // let user = await User.findOne({ email: req.body.email });
+  // if (user) return next(new AppError("Email Already Exist", 409));
+  // let result = new User(req.body);
+  // await result.save();
+  const { email, password, fullName , profilePic, role} = req.body;
+  const userExists = await User.findOne({ email });
+  if (userExists) return next(new AppError("User already exists", 409)); 
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(password, salt);
+    const user = await User.create({
+      email,
+      passwordHash,
+      fullName,
+      profilePic,
+      role,
+    });
+    res.status(201).json({ message: "success", user });
     // res.status(201).json({
     //   success: true,
     //   data: {
