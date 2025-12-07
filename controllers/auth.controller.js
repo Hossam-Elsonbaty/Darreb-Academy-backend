@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import  generateToken  from "../utils/generateToken.js";
+import AppError from "../utils/appError.js";
 
 const register = asyncHandler(async (req, res, next) => {
   const { email, password, fullName } = req.body;
