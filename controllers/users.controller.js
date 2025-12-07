@@ -18,7 +18,6 @@ const getAllUses = asyncHandler(async (req, res, next) => {
   if (!users) {
     return next(new AppError("No uses registered yet", 404));
   }
-
   res.status(200).json(users);
 });
 
