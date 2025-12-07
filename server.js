@@ -11,18 +11,18 @@ import cartRoutes from "./routes/cartRoutes.js";
 dotenv.config();
 const app = express();
 
-const corsOptions = {
-  origin: [
-  'http://localhost:4200',
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'http://localhost:3001',
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: '*',
-};
+// const corsOptions = {
+//   origin: [
+//   'http://localhost:4200',
+//   'http://localhost:3000',
+//   'http://localhost:5173',
+//   'http://localhost:3001',
+//   ],
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: '*',
+// };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 // app.options('*', cors());
 
