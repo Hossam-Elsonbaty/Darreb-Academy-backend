@@ -46,8 +46,8 @@ const login = asyncHandler(async (req, res, next) => {
       },
     });
   } else {
-    // res.status(401).json({ message: "Invalid email or password" });
-    return next(new AppError("Invalid email or password", 404));
+    res.status(401).json({ message: "Invalid email or password" });
+    // return next(new AppError("Invalid email or password", 404));
   }
 });
 
