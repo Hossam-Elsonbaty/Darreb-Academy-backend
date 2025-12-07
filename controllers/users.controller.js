@@ -49,7 +49,7 @@ const getUserById = asyncHandler(async (req, res, next) => {
 // update user
 const updateUser = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { email, password, fullName, profilePic } = req.body;
+  const { email, password, fullName, profilePic,role } = req.body;
   const checkId = mongoose.Types.ObjectId.isValid(id);
   if (!checkId) {
     return next(new AppError("Invalid user id, try Again", 400));
@@ -58,6 +58,7 @@ const updateUser = asyncHandler(async (req, res, next) => {
   const updateObj = {};
   if (email) updateObj.email = email;
   if (fullName) updateObj.fullName = fullName;
+  if (role) updateObj.role = role;
   if (profilePic) updateObj.profilePic = profilePic;
 
   if (password) {
