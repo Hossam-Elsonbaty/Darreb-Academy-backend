@@ -14,7 +14,7 @@ const register = asyncHandler(async (req, res, next) => {
     email,
     passwordHash,
     fullName,
-    profilePic:profilePic || null,
+    profilePic,
     role: "student",
   });
   res.status(201).json({
