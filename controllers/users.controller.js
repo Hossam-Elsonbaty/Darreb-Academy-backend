@@ -17,7 +17,7 @@ const createUser = asyncHandler(async (req, res, next) => {
     profilePic,
     role,
   });
-  res.status(201).json({ message: "success", user });
+  res.status(201).json( user );
 });
 
 // Get All Users
