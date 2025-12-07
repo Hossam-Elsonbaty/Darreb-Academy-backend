@@ -9,7 +9,30 @@ const createUser = asyncHandler(async (req, res, next) => {
   if (user) return next(new AppError("Email Already Exist", 409));
   let result = new User(req.body);
   await result.save();
-  res.status(201).json({ message: "success", result });
+  // const { email, password, fullName , profilePic, role} = req.body;
+  // const userExists = await User.findOne({ email });
+  // if (userExists) return next(new AppError("User already exists", 409)); 
+  // const salt = await bcrypt.genSalt(10);
+  // const passwordHash = await bcrypt.hash(password, salt);
+  //   const user = await User.create({
+  //     email,
+  //     passwordHash,
+  //     fullName,
+  //     profilePic,
+  //     role,
+  //   });
+    res.status(201).json({ message: "success", result });
+    // res.status(201).json({
+    //   success: true,
+    //   data: {
+    //     _id: user._id,
+    //     email: user.email,
+    //     fullName: user.fullName,
+    //     profilePic: user.profilePic,
+    //     role: user.role,
+    //     token: generateToken(user._id),
+    //   },
+    // });
 });
 
 // Get All Users
