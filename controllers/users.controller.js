@@ -17,7 +17,7 @@ const createUser = asyncHandler(async (req, res, next) => {
     profilePic,
     role,
   });
-  res.status(201).json( user );
+  res.status(201).json(user);
 });
 
 // Get All Users
@@ -49,7 +49,7 @@ const getUserById = asyncHandler(async (req, res, next) => {
 // update user
 const updateUser = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { email, password, fullName, profilePic,role } = req.body;
+  const { email, password, fullName, profilePic, role } = req.body;
   const checkId = mongoose.Types.ObjectId.isValid(id);
   if (!checkId) {
     return next(new AppError("Invalid user id, try Again", 400));
@@ -72,8 +72,11 @@ const updateUser = asyncHandler(async (req, res, next) => {
   if (!updatedUser) {
     return next(new AppError("User not found", 404));
   }
-
-  res.status(201).json("User Updated successfully",updatedUser);
+  res.status(201).json({
+    success: true,
+    message: "User Updated successfully",
+    data: updatedUser,
+  });
 });
 
 // delete user with id
