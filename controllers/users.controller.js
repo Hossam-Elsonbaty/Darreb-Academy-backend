@@ -73,7 +73,7 @@ const updateUser = asyncHandler(async (req, res, next) => {
     return next(new AppError("User not found", 404));
   }
 
-  res.status(201).json("User Updated successfully",updateUser);
+  res.status(201).json("User Updated successfully",updatedUser);
 });
 
 // delete user with id
