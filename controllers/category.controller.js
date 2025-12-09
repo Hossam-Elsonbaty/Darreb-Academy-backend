@@ -59,18 +59,25 @@ const updateCategory = async (req, res) => {
         message: "Invalid Category id, try Again",
       });
     }
-    let category = await Category.findById(id);
-    let updatedCategory = {
-      name: name|| category.name,
-      name_ar: name_ar || category.name_ar,
-      description: description || category.description,
-      description_ar: description_ar || category.description_ar,
-    };
+    const category = await Category.findById(id);
+    // let updatedCategory = {
+    //   name: name|| category.name,
+    //   name_ar: name_ar || category.name_ar,
+    //   description: description || category.description,
+    //   description_ar: description_ar || category.description_ar,
+    // };
 
-    await Category.findByIdAndUpdate({ _id: id }, updatedCategory, {
+    // await Category.findByIdAndUpdate({ _id: id }, updatedCategory, {
+    //   new: true,
+    // });
+    const updateObj = {};
+    if (name) updateObj.name = name;
+    if (name_ar) updateObj.name_ar = name_ar;
+    if (description) updateObj.description = description;
+    if (description_ar) updateObj.description_ar = profilePic;
+    const updatedCategory = await category.findByIdAndUpdate({ _id: id }, updateObj, {
       new: true,
     });
-
     res.status(201).json({
       message: "category updated successfully",
       data:updatedCategory
