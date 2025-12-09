@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Category from "../models/Category.js";
+import AppError from "../utils/appError.js";
 
 const getAllCategories = async (req, res) => {
   try {
@@ -55,30 +56,30 @@ const updateCategory = async (req, res) => {
   try {
     const checkId = mongoose.Types.ObjectId.isValid(id);
     if (!checkId) {
-      return res.status(400).json({
-        message: "Invalid Category id, try Again",
-      });
+      return next(new AppError("Invalid Category id, try Again", 400));
     }
-    const category = await Category.findById(id);
+    
     // let updatedCategory = {
-    //   name: name|| category.name,
-    //   name_ar: name_ar || category.name_ar,
-    //   description: description || category.description,
-    //   description_ar: description_ar || category.description_ar,
-    // };
-
-    // await Category.findByIdAndUpdate({ _id: id }, updatedCategory, {
-    //   new: true,
-    // });
+      //   name: name|| category.name,
+      //   name_ar: name_ar || category.name_ar,
+      //   description: description || category.description,
+      //   description_ar: description_ar || category.description_ar,
+      // };
+      
+      // await Category.findByIdAndUpdate({ _id: id }, updatedCategory, {
+        //   new: true,
+        // });
+    const category = await Category.findById(id);
     const updateObj = {};
     if (name) updateObj.name = name;
     if (name_ar) updateObj.name_ar = name_ar;
     if (description) updateObj.description = description;
-    if (description_ar) updateObj.description_ar = profilePic;
+    if (description_ar) updateObj.description_ar = description_ar;
     const updatedCategory = await category.findByIdAndUpdate({ _id: id }, updateObj, {
       new: true,
     });
     res.status(201).json({
+      success:true,
       message: "category updated successfully",
       data:updatedCategory
     });
