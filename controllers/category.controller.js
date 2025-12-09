@@ -73,6 +73,7 @@ const updateCategory = async (req, res) => {
 
     res.status(201).json({
       message: "category updated successfully",
+      data:updatedCategory
     });
   } catch (error) {
     res.status(500).json({
