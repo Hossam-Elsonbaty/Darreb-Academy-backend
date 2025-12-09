@@ -74,7 +74,7 @@ const updateCategory = async (req, res) => {
     if (name_ar) updateObj.name_ar = name_ar;
     if (description) updateObj.description = description;
     if (description_ar) updateObj.description_ar = description_ar;
-    const updatedCategory = await category.findByIdAndUpdate({ _id: id }, updateObj, {
+    const updatedCategory = await Category.findByIdAndUpdate({ _id: id }, updateObj, {
       new: true,
     });
     res.status(201).json({
