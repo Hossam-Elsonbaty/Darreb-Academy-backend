@@ -69,7 +69,6 @@ const updateCategory = async (req, res) => {
       // await Category.findByIdAndUpdate({ _id: id }, updatedCategory, {
         //   new: true,
         // });
-    const category = await Category.findById(id);
     const updateObj = {};
     if (name) updateObj.name = name;
     if (name_ar) updateObj.name_ar = name_ar;
