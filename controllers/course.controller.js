@@ -1,36 +1,94 @@
 import Course from "../models/Course.js";
+import Lecture from "../models/Lecture.js";
+import Chapter from "../models/Chapter.js";
+import {upload} from '../middleware/imageUpload.js';
+import {uploadToCloudinary} from '../config/cloudinary.js'; // Upload function
 
 const createCourse = async (req, res) => {
   try {
-    const {
-      title,
-      title_ar,
-      description,
-      description_ar,
-      price,
-      thumbnail,
-      category,
-      level,
-      duration,
-    } = req.body;
-    const course = await Course.create({
-      title,
-      title_ar,
-      description,
-      description_ar,
-      instructor: req.user._id,
-      price,
-      thumbnail,
-      category,
-      level,
-      duration,
+    // Handle file upload via Multer
+    console.log(req.user);
+    
+    upload.single('thumbnail')(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+      // Upload image to Cloudinary
+      const imageUrl = await uploadToCloudinary(req.file.buffer);
+      // Create new course
+      const course = await new Course({
+        title: req.body.title,
+        title_ar: req.body.title_ar,
+        description: req.body.description,
+        description_ar: req.body.description_ar,
+        instructor: req.user._id,
+        price: req.body.price,
+        level: req.body.level,
+        isPublished:req.body.isPublished === "true",
+        category: req.body.category,
+        thumbnail: imageUrl // Save the Cloudinary URL
+      });
+      await course.save();
+      return res.status(201).json({ message: 'Course created successfully', course });
     });
-    res.status(201).json(course);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
+const updateCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
 
+    // Check if the course exists
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Handle file upload via Multer (only if the file is provided)
+    upload.single('thumbnail')(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+
+      // Log body and uploaded file to debug
+      console.log('Request Body:', req.body);
+      console.log('Uploaded File:', req.file);
+
+      // Destructure non-file fields from req.body after multer processes the form data
+      const { title, title_ar, description, description_ar, price, level, category, isPublished } = req.body;
+
+      // If a new thumbnail is provided, upload to Cloudinary and get the URL
+      if (req.file) {
+        try {
+          // Upload image to Cloudinary
+          const imageUrl = await uploadToCloudinary(req.file.buffer);
+          course.thumbnail = imageUrl;  // Update the thumbnail field
+        } catch (cloudinaryError) {
+          return res.status(500).json({ message: 'Error uploading image to Cloudinary' });
+        }
+      }
+
+      // Update the other fields of the course
+      course.title = title || course.title;
+      course.title_ar = title_ar || course.title_ar;
+      course.description = description || course.description;
+      course.description_ar = description_ar || course.description_ar;
+      course.price = price || course.price;
+      course.level = level || course.level;
+      course.category = category || course.category;
+      course.isPublished = isPublished !== undefined ? isPublished : course.isPublished;
+
+      // Save the updated course
+      const updatedCourse = await course.save();
+      return res.status(200).json(updatedCourse);
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
 const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find()
@@ -65,9 +123,34 @@ const deleteCourse = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+const getCourse = async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    // Check if the course exists
+    
+    const course = await Course.findById(courseId)
+      .populate("instructor", "fullName email")
+      .populate("category", "_id")
+      .populate({
+        path: "chapters.chapter",
+        populate: {
+          path: "lectures.lecture",
+        },
+      });
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    // Return the course data
+    return res.status(200).json(course);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
 export {
   createCourse,
+  updateCourse,
   getAllCourses,
-  deleteCourse
+  deleteCourse,
+  getCourse
 }

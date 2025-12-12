@@ -3,11 +3,13 @@ import express from "express";
 import cors from "cors";
 import connectDB from "./config/database.js";
 import errorHandler from "./middleware/errorHandler.js";
-import authRoutes from "./routes/authRoutes.js";
-import usersRoutes from "./routes/usersRoutes.js";
-import categoryRoutes from "./routes/categoryRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js";
-import coursesRoutes from "./routes/coursesRoutes.js";
+import authRoutes from "./routes/auth.Routes.js";
+import usersRoutes from "./routes/users.Routes.js";
+import categoryRoutes from "./routes/category.Routes.js";
+import cartRoutes from "./routes/cart.Routes.js";
+import coursesRoutes from "./routes/courses.Routes.js";
+import chapterRoutes from "./routes/chapter.Routes.js";
+import lectureRoutes from "./routes/lecture.Routes.js";
 
 dotenv.config();
 const app = express();
@@ -38,13 +40,21 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
 app.use("/api/courses", coursesRoutes);
+app.use("/api/chapters", chapterRoutes);
+app.use("/api/lectures", lectureRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+
 app.listen(PORT, () => {
+  console.log('Cloudinary Name:', process.env.CLOUDINARY_NAME);
+  console.log('Cloudinary API Key:', process.env.CLOUDINARY_KEY);
+  console.log('Cloudinary API Secret:', process.env.CLOUDINARY_SECRET);
+
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });

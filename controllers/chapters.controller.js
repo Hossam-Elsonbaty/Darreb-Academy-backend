@@ -1,87 +1,72 @@
-import Chapter from "../models/Chapter";
+import Chapter from "../models/Chapter.js";
 import asyncHandler from "express-async-handler";
+import Course from "../models/Course.js";
+import { calculateChapterDuration, getNextChapterOrder } from "../helpers/chapter.helper.js";
+
+const createChapter = asyncHandler(async (req, res) => {
+  const { title, title_ar, courseId } = req.body;
+  if (!courseId) {
+    return res.status(400).json({ message: "courseId is required" });
+  }
+  const nextOrder = await getNextChapterOrder(courseId);
+  const chapter = await Chapter.create({
+    title,
+    title_ar,
+    duration: 0, 
+    order: nextOrder,
+    lectures: []
+  });
+  const course = await Course.findById(courseId);
+  course.chapters.push({ chapter: chapter._id, order: nextOrder });
+  await course.save();
+  res.status(201).json(chapter);
+});
 
 
-export const getAllChapters = asyncHandler(async (req, res) => {
+const getAllChapters = asyncHandler(async (req, res) => {
   const chapters = await Chapter.find();
   res.status(200).json({ data: chapters });
 });
 
-const createChapter = async (req, res) => {
-  try {
-    const { title, title_ar, duration, order, courseId } = req.body;
 
-    const chapter = await Chapter.create({
-      title,
-      title_ar,
-      duration:duration| null,
-      order:order + 1,
-    });
-
-    if (courseId) {
-      const course = await Course.findById(courseId);
-      if (course) {
-        course.chapters.push({ chapter: chapter._id, order });
-        await course.save();
-      }
-    }
-
-    res.status(201).json(chapter);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+const getChapterById = asyncHandler(async (req, res) => {
+  const chapter = await Chapter.findById(req.params.id)
+    .populate("lectures.lecture");
+  if (!chapter) {
+    return res.status(404).json({ message: "Chapter not found" });
   }
-};
+  res.json(chapter);
+});
 
-const getChapterById = async (req, res) => {
-  try {
-    const chapter = await Chapter.findById(req.params.id).populate("lectures.lecture");
-
-    if (chapter) {
-      res.json(chapter);
-    } else {
-      res.status(404).json({ message: "Chapter not found" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+const updateChapter = asyncHandler(async (req, res) => {
+  const chapter = await Chapter.findById(req.params.id);
+  if (!chapter) {
+    return res.status(404).json({ message: "Chapter not found" });
   }
-};
+  Object.assign(chapter, req.body);
+  chapter.duration = await calculateChapterDuration(chapter._id);
+  const updated = await chapter.save();
+  res.json(updated);
+});
 
-const updateChapter = async (req, res) => {
-  try {
-    const chapter = await Chapter.findById(req.params.id);
-
-    if (!chapter) {
-      return res.status(404).json({ message: "Chapter not found" });
-    }
-
-    Object.assign(chapter, req.body);
-    const updatedChapter = await chapter.save();
-
-    res.json(updatedChapter);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+const deleteChapter = asyncHandler(async (req, res) => {
+  const chapter = await Chapter.findById(req.params.id);
+  if (!chapter) {
+    return res.status(404).json({ message: "Chapter not found" });
   }
-};
+  await Course.updateMany(
+    { "chapters.chapter": chapter._id },
+    { $pull: { chapters: { chapter: chapter._id } } }
+  );
+  await chapter.deleteOne();
+  res.json({ message: "Chapter removed" });
+});
 
-const deleteChapter = async (req, res) => {
-  try {
-    const chapter = await Chapter.findById(req.params.id);
-
-    if (!chapter) {
-      return res.status(404).json({ message: "Chapter not found" });
-    }
-
-    await chapter.deleteOne();
-    res.json({ message: "Chapter removed" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
 
 export {
-  getAllChapters,
   getChapterById,
   deleteChapter,
   createChapter,
-  updateChapter
+  updateChapter,
+  getAllChapters
 }
