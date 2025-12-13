@@ -10,6 +10,7 @@ import cartRoutes from "./routes/cart.Routes.js";
 import coursesRoutes from "./routes/courses.Routes.js";
 import chapterRoutes from "./routes/chapter.Routes.js";
 import lectureRoutes from "./routes/lecture.Routes.js";
+import contactUsRoutes from "./routes/contactUs.Routes.js";
 
 dotenv.config();
 const app = express();
@@ -44,6 +45,7 @@ app.use("/api/chapters", chapterRoutes);
 app.use("/api/lectures", lectureRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/contact-us", contactUsRoutes);
 app.use("/uploads", express.static("uploads"));
 
 app.use(errorHandler);
