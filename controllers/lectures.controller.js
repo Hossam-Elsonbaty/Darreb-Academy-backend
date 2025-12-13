@@ -77,7 +77,7 @@ const deleteLecture = async (req, res) => {
     
     // Delete video from Cloudinary if videoId exists
     if (lecture.videoId) {
-      console.log(lecture.videoId);
+      console.log(lecture.videoId); 
       
       try {
         await cloudinary.uploader.destroy(lecture.videoId, {
