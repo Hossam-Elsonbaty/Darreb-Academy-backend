@@ -16,7 +16,7 @@ const userSchema = new Schema(
       enum: ["student", "instructor", "admin"],
       default: "student",
     },
-    enrolledCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
+    purchasedCourses: [{ type: Schema.Types.ObjectId, ref: "Course" }],
   },
   { timestamps: true }
 );

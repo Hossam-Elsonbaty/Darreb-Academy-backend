@@ -3,6 +3,7 @@ import Lecture from "../models/Lecture.js";
 import Chapter from "../models/Chapter.js";
 import {upload} from '../middleware/imageUpload.js';
 import {uploadToCloudinary} from '../config/cloudinary.js'; // Upload function
+import User from "../models/User.js";
 
 const createCourse = async (req, res) => {
   try {
@@ -147,10 +148,33 @@ const getCourse = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 };
+const getPurchasedCourses = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId).populate({
+      path: "purchasedCourses",
+      populate: [
+        { path: "category", select: "name" },
+        { path: "instructor", select: "name email" },
+      ],
+    });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({
+      count: user.purchasedCourses.length,
+      courses: user.purchasedCourses,
+    });
+  } catch (error) {
+    console.error("Get purchased courses error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 export {
   createCourse,
   updateCourse,
   getAllCourses,
   deleteCourse,
-  getCourse
+  getCourse,
+  getPurchasedCourses
 }
