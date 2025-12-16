@@ -23,6 +23,8 @@ const corsOptions = {
   'http://localhost:3000',
   'http://localhost:5173',
   'http://localhost:3001',
+  'https://darreb-academy.vercel.app',
+  'https://darreb-academy-dashboard.vercel.app',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
