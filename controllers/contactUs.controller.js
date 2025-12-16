@@ -10,6 +10,17 @@ const getContactEmails = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
+const sendThankYouEmail = async (userEmail, msg, footer, subject) => {
+  const emailContent = `${msg}\n\n${footer}`;
+  const msgData = {
+    to: userEmail,
+    from: 'hossamsonbaty@gmail.com', // Your verified sender email
+    subject: subject,
+    text: emailContent,
+    html: `<p>${msg}</p><p>${footer}</p>`,
+  };
+  await sgMail.send(msgData);
+};
 const addContactEmail = async (req, res) => {
   const data = req.body;
   const subject = 'Inquiry Received'
@@ -23,8 +34,8 @@ const addContactEmail = async (req, res) => {
     await newContactUs.save();
     await sendThankYouEmail(data.email, msg, footer,subject)
     const msg2 = {
-      to: 'info@alarqamacademy.org', // Receiver's email
-      from: 'info@alarqamacademy.org', // Use a verified sender
+      to: data.email, // Receiver's email
+      from: 'hossamsonbaty@gmail.com', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
       html: `
@@ -43,7 +54,35 @@ const addContactEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
+const sendEmail =  async (req, res) => {
+  const { emailAddress, emailMessage, emailSubject } = req.body;
+  if (!emailAddress || !emailMessage || !emailSubject) {
+    return res.status(400).json({ message: 'Please fill in all fields.' });
+  }
+  try {
+    const msg = {
+      to: emailAddress, // Receiver's email
+      from:{
+        name: 'Darreb Academy',
+        email: 'hossamsonbaty@gmail.com'
+      },
+      subject: `${emailSubject}`,
+      text: `${emailMessage}`,
+    };
+    await sgMail.sendMultiple(msg).then((res) => {
+      console.log(res);
+    }).catch((err) => {
+      console.log("error:", err.message);
+    });
+    res.status(201).json({ success: true });
+  } catch (error) {
+    console.error('Error saving user or sending email:', error);
+    res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+} 
+
 export {
   getContactEmails,
-  addContactEmail
+  addContactEmail,
+  sendEmail
 }

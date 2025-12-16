@@ -90,6 +90,22 @@ const updateCourse = async (req, res) => {
     return res.status(500).json({ message: 'Server error' });
   }
 }
+// const getAllCourses = async (req, res) => {
+//   try {
+//     const courses = await Course.find()
+//       .populate("instructor", "fullName email")
+//       .populate("category", "name name_ar")
+//       .populate({
+//         path: "chapters.chapter",
+//         populate: {
+//           path: "lectures.lecture",
+//         },
+//       });
+//     res.json(courses);
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
 const getAllCourses = async (req, res) => {
   try {
     const courses = await Course.find()
@@ -101,7 +117,33 @@ const getAllCourses = async (req, res) => {
           path: "lectures.lecture",
         },
       });
-    res.json(courses);
+
+    // Modify each course to include total duration and total lectures
+    const modifiedCourses = courses.map((course) => {
+      let totalDuration = 0; // In minutes
+      let totalLectures = 0;
+
+      // Calculate total duration and total number of lectures
+      course.chapters.forEach((chapter) => {
+        chapter.chapter.lectures.forEach((lecture) => {
+          // Assuming the lecture has a 'duration' field in minutes
+          totalDuration += lecture.duration || 0;
+          totalLectures += 1; // Count each lecture
+        });
+      });
+
+      // Convert total duration from minutes to hours and minutes
+      const hours = Math.floor(totalDuration / 60);
+      const minutes = totalDuration % 60;
+
+      return {
+        ...course.toObject(), // Convert the Mongoose object to a plain JS object
+        totalDuration: `${hours} h ${minutes} min`,
+        totalLectures,
+      };
+    });
+
+    res.json(modifiedCourses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
