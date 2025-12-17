@@ -127,18 +127,22 @@ const getAllCourses = async (req, res) => {
       course.chapters.forEach((chapter) => {
         chapter.chapter.lectures.forEach((lecture) => {
           // Assuming the lecture has a 'duration' field in minutes
-          totalDuration += lecture.duration || 0;
+          totalDuration += lecture.lecture.duration || 0;
           totalLectures += 1; // Count each lecture
         });
       });
 
       // Convert total duration from minutes to hours and minutes
-      const hours = Math.floor(totalDuration / 60);
-      const minutes = totalDuration % 60;
-
+      // const hours = Math.floor(totalDuration / 60 / 60);
+      // const minutes = totalDuration % 60;
+      // const seconds = totalDuration;
+      console.log(totalDuration);
+      const hours = Math.floor(totalDuration / 3600);
+      const minutes = Math.floor((totalDuration % 3600) / 60);
+      const seconds = totalDuration % 60;
       return {
         ...course.toObject(), // Convert the Mongoose object to a plain JS object
-        totalDuration: `${hours} h ${minutes} min`,
+        totalDuration: `${hours} h ${minutes} min ${seconds} sec`,
         totalLectures,
       };
     });
@@ -159,6 +163,7 @@ const deleteCourse = async (req, res) => {
     if (course.instructor.toString() !== req.user._id.toString() && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized to delete this course" });
     }
+    
 
     await course.deleteOne();
     res.json({ message: "Course removed" });

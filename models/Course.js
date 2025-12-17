@@ -26,7 +26,7 @@ const courseSchema = new Schema(
       enum: ["beginner", "intermediate", "advanced", "all"],
       default: "all",
     },
-    duration: { type: Number },
+    totalDuration: { type: String },
     isPublished: { type: Boolean, default: false },
     rating: { type: Number, default: 0, min: 0, max: 5 },
     totalRatings: { type: Number, default: 0 },

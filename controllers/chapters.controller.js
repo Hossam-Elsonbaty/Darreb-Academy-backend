@@ -21,13 +21,96 @@ const createChapter = asyncHandler(async (req, res) => {
   await course.save();
   res.status(201).json(chapter);
 });
+const getCourseChapters = asyncHandler(async (req, res) => {
+  const { courseId } = req.params;
 
+  const course = await Course.findById(courseId).populate({
+    path: "chapters.chapter",
+    populate: {
+      path: "lectures.lecture",
+      select: "title title_ar duration",
+    },
+  });
 
-const getAllChapters = asyncHandler(async (req, res) => {
-  const chapters = await Chapter.find();
-  res.status(200).json({ data: chapters });
+  if (!course) {
+    res.status(404);
+    throw new Error("Course not found");
+  }
+
+  const modifiedChapters = course.chapters.map((item) => {
+    const chapter = item.chapter;
+
+    let totalDuration = 0; // seconds
+    let totalLectures = 0;
+
+    const lectures = chapter.lectures
+      .slice()
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    lectures.forEach((l) => {
+      if (l.lecture) {
+        totalDuration += l.lecture.duration || 0;
+        totalLectures += 1;
+      }
+    });
+
+    const hours = Math.floor(totalDuration / 3600);
+    const minutes = Math.floor((totalDuration % 3600) / 60);
+    const seconds = totalDuration % 60;
+
+    return {
+      ...chapter.toObject(),
+      lectures,
+      totalLectures,
+      totalDurationInSeconds: totalDuration,
+      totalDuration: `${hours} h ${minutes} min ${seconds} sec`,
+    };
+  });
+
+  res.status(200).json({
+    courseId,
+    totalChapters: modifiedChapters.length,
+    data: modifiedChapters,
+  });
 });
 
+
+// const getAllChapters = asyncHandler(async (req, res) => {
+//   const chapters = await Chapter.find();
+//   res.status(200).json({ data: chapters });
+// });
+const getAllChapters = asyncHandler(async (req, res) => {
+  const chapters = await Chapter.find()
+    .populate({
+      path: "lectures.lecture",
+      select: "duration title title_ar",
+    });
+  const modifiedChapters = chapters.map((chapter) => {
+    let totalDuration = 0; // seconds
+    let totalLectures = 0;
+    // console.log(chapter);
+    
+    chapter.lectures.forEach((item) => {
+      console.log(item);
+      
+      if (item.lecture) {
+        totalDuration += item.lecture.duration || 0;
+        totalLectures += 1;
+      }
+    });
+    // seconds → h : m : s
+    const hours = Math.floor(totalDuration / 3600);
+    const minutes = Math.floor((totalDuration % 3600) / 60);
+    const seconds = totalDuration % 60;
+    return {
+      ...chapter.toObject(),
+      totalDurationInSeconds: totalDuration,
+      totalDuration: `${hours} h ${minutes} min ${seconds} sec`,
+      totalLectures,
+    };
+  });
+  res.status(200).json({ data: modifiedChapters });
+});
 
 const getChapterById = asyncHandler(async (req, res) => {
   const chapter = await Chapter.findById(req.params.id)
@@ -64,6 +147,7 @@ const deleteChapter = asyncHandler(async (req, res) => {
 
 
 export {
+  getCourseChapters,
   getChapterById,
   deleteChapter,
   createChapter,

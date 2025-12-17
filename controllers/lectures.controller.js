@@ -101,8 +101,7 @@ const deleteLecture = async (req, res) => {
 
 const getAllLectures = async (req, res) => {
   try {
-    const { chapterId } = req.query;
-    // If a chapterId is provided, return lectures belonging to that chapter in order
+    const { chapterId } = req.params;
     if (chapterId) {
       const chapter = await Chapter.findById(chapterId).populate("lectures.lecture");
       if (!chapter) return res.status(404).json({ message: "Chapter not found" });
@@ -112,10 +111,7 @@ const getAllLectures = async (req, res) => {
         .map((l) => l.lecture);
       return res.json(lectures);
     }
-
-    // Otherwise return all lectures
-    const lectures = await Lecture.find().sort({ order: 1, createdAt: 1 });
-    res.json(lectures);
+    return res.json([]);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

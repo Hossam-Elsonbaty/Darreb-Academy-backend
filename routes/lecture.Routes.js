@@ -12,7 +12,7 @@ import { protect, authorize } from "../middleware/auth.js";
 const router = express.Router();
 router.post("/create-lecture", protect, authorize("admin", "instructor"), uploadVideo.single("video"), createLecture);
 // router.get("/:id", getLectureById);
-router.get("/:id", getAllLectures);
+router.get("/:chapterId", getAllLectures);
 router.put("/:id", protect, authorize("admin", "instructor"), uploadVideo.single("video"), updateLecture);
 router.delete("/:id", protect, authorize("admin", "instructor"), deleteLecture);
 

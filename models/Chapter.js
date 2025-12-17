@@ -11,7 +11,8 @@ const chapterSchema = new Schema(
         order: { type: Number, default: 0 },
       },
     ],
-    duration: { type: Number },
+    totalDuration: { type: String },
+    totalLectures: { type: Number },
     order: { type: Number, default: 0 },
   },
   { timestamps: true }
