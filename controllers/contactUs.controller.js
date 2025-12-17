@@ -34,7 +34,7 @@ const addContactEmail = async (req, res) => {
     await newContactUs.save();
     await sendThankYouEmail(data.email, msg, footer,subject)
     const msg2 = {
-      to: data.email, // Receiver's email
+      to: 'hossamsonbaty@gmail.com', // Receiver's email
       from: 'hossamsonbaty@gmail.com', // Use a verified sender
       subject: 'Contact Us',
       text: `Name: ${data.name}\nEmail: ${data.email}\nMessage: ${data.message}`,
@@ -54,33 +54,67 @@ const addContactEmail = async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 }
-const sendEmail =  async (req, res) => {
-  const { emailAddress, emailMessage, emailSubject } = req.body;
+// const sendEmail =  async (req, res) => {
+//   const { emailAddress, emailMessage, emailSubject,name } = req.body;
+//   if (!emailAddress || !emailMessage || !emailSubject) {
+//     return res.status(400).json({ message: 'Please fill in all fields.' });
+//   }
+//   try {
+//     const msg = {
+//       to: 'hossamsonbaty@gmail.com', // Receiver's email
+//       from:{
+//         name: `${name}`,
+//         email: `${emailAddress}`
+//       },
+//       subject: `${emailSubject}`,
+//       text: `${emailMessage}`,
+//     };
+//     await sgMail.sendMultiple(msg).then((res) => {
+//       console.log(res);
+//     }).catch((err) => {
+//       console.log("error:", err.message);
+//     });
+//     res.status(201).json({ success: true });
+//   } catch (error) {
+//     console.error('Error saving user or sending email:', error);
+//     res.status(500).json({ message: 'Server error, please try again later.' });
+//   }
+// } 
+const sendEmail = async (req, res) => {
+  const { emailAddress, emailMessage, emailSubject, name } = req.body;
+
+  // Validate required fields
   if (!emailAddress || !emailMessage || !emailSubject) {
     return res.status(400).json({ message: 'Please fill in all fields.' });
   }
+
   try {
     const msg = {
-      to: emailAddress, // Receiver's email
-      from:{
+      to: `${emailAddress}`,  // Receiver's email (could be your admin email)
+      from: {
         name: 'Darreb Academy',
-        email: 'hossamsonbaty@gmail.com'
+        email: 'hossamsonbaty@gmail.com',  // Sender's email
       },
       subject: `${emailSubject}`,
       text: `${emailMessage}`,
     };
-    await sgMail.sendMultiple(msg).then((res) => {
-      console.log(res);
-    }).catch((err) => {
-      console.log("error:", err.message);
-    });
-    res.status(201).json({ success: true });
+
+    // Send the email using send() (not sendMultiple)
+    await sgMail.send(msg)
+      .then((response) => {
+        console.log(response);
+        res.status(201).json({ success: true });
+      })
+      .catch((err) => {
+        console.error("Error sending email:", err.message);
+        res.status(500).json({ message: 'Server error, please try again later.' });
+      });
+
   } catch (error) {
     console.error('Error saving user or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
-} 
-
+};
 export {
   getContactEmails,
   addContactEmail,

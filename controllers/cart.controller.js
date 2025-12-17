@@ -1,6 +1,6 @@
 import Cart from "../models/Cart.js";
 import Course from "../models/Course.js";
-
+import mongoose from "mongoose";
 const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(

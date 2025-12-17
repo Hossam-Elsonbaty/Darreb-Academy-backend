@@ -5,5 +5,6 @@ const contactUsSchema = new Schema({
   name: String,
   email: String,
   message: String,
+  subject: String,
 });
 export default mongoose.model("ContactUs", contactUsSchema);
