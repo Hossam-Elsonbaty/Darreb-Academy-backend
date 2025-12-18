@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import  generateToken  from "../utils/generateToken.js";
 import AppError from "../utils/appError.js";
+import { getPurchasedCourses } from "./course.controller.js";
 
 const register = asyncHandler(async (req, res, next) => {
   const { email, password, fullName , profilePic} = req.body;
@@ -42,6 +43,7 @@ const login = asyncHandler(async (req, res, next) => {
         fullName: user.fullName,
         profilePic: user.profilePic,
         role: user.role,
+        purchasedCourses:user.purchasedCourses,
         token: generateToken(user._id),
       },
     });
