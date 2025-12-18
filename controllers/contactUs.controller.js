@@ -19,7 +19,12 @@ const sendThankYouEmail = async (userEmail, msg, footer, subject) => {
     text: emailContent,
     html: `<p>${msg}</p><p>${footer}</p>`,
   };
-  await sgMail.send(msgData);
+  try {
+    await sgMail.send(msgData); 
+  } catch (error) {
+    console.error('Error sending thank you email:', error.message);
+    throw new Error('Failed to send thank you email'); // Rethrow the error to be caught in the main try-catch
+  }
 };
 const addContactEmail = async (req, res) => {
   const data = req.body;
@@ -31,8 +36,11 @@ const addContactEmail = async (req, res) => {
   }
   const newContactUs = new ContactUs(data);
   try {
+    console.log('Saving contact data...');
     await newContactUs.save();
-    await sendThankYouEmail(data.email, msg, footer,subject)
+    console.log('Contact data saved:', newContactUs);
+    await sendThankYouEmail(data.email, msg, footer,subject);
+    console.log('Thank you email sent.');
     const msg2 = {
       to: 'hossamsonbaty@gmail.com', // Receiver's email
       from: 'hossamsonbaty@gmail.com', // Use a verified sender
@@ -45,9 +53,9 @@ const addContactEmail = async (req, res) => {
               <p>Message: ${data.message}</p>
             `
     };
+    console.log('Sending email to admin...');
     await sgMail.send(msg2)
-    .then((res)=>{console.log(res);})
-    .catch((err)=>{console.log(err.message);})
+    console.log('Admin email sent.');
     return res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);
