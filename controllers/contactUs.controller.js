@@ -48,7 +48,7 @@ const addContactEmail = async (req, res) => {
     await sgMail.send(msg2)
     .then((res)=>{console.log(res);})
     .catch((err)=>{console.log(err.message);})
-    res.status(201).json({ success: true, data: newContactUs });
+    return res.status(201).json({ success: true, data: newContactUs });
   } catch (error) {
     console.error('Error saving contact or sending email:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
