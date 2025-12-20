@@ -27,8 +27,8 @@ const handlePayment = async(req,res)=>{
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: "http://localhost:5173/success",
-      cancel_url: "http://localhost:5173/404",
+      success_url: "https://darreb-academy.vercel.app/success",
+      cancel_url: "https://darreb-academy.vercel.app/404",
       client_reference_id: userId, 
       metadata: {
         courseIds: products.map((item) => item.course._id).join(","),
@@ -74,7 +74,6 @@ const stripeWebhook = async (req, res) => {
         return res.status(404).json({ message: "Courses not found" });
       }
 
-      // ✅ Filter out courses that are already purchased
       const newCourses = courses.filter(course => 
         !user.purchasedCourses.some(purchased => 
           purchased.toString() === course._id.toString()
@@ -94,37 +93,6 @@ const stripeWebhook = async (req, res) => {
       return res.status(500).send("Error processing webhook event");
     }
   }
-  // if (event.type === "checkout.session.completed") {
-  //   const session = event.data.object;
-  //   console.log('Checkout session completed', session); 
-  //   try {
-  //     // Get the user based on the session's client_reference_id
-  //     const userId = session.client_reference_id; // This should be the user ID passed earlier
-  //     const user = await User.findById(userId);
-
-  //     if (!user) {
-  //       return res.status(404).json({ message: "User not found" });
-  //     }
-
-  //     // Get the course IDs from the session metadata
-  //     const courseIds = session.metadata.courseIds.split(","); // Assuming it's a comma-separated string
-  //     const courses = await Course.find({ "_id": { $in: courseIds } });
-  //     console.log('Courses fetched:', courses);
-  //     if (!courses.length) {
-  //       return res.status(404).json({ message: "Courses not found" });
-  //     }
-
-  //     // Update the user's purchasedCourses array
-  //     user.purchasedCourses.push(...courses);
-  //     await user.save();
-  //     console.log("Updated user:", user); 
-  //   } catch (error) {
-  //     console.error("Error processing payment or updating user's courses:", error);
-  //     return res.status(500).send("Error processing webhook event");
-  //   }
-  // }
-
-  // Respond with 200 to acknowledge receipt of the event
   res.status(200).send("Webhook received");
 };
 
