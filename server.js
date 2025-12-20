@@ -55,7 +55,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api", webhookRoutes);
+app.use("/api/webhooks", webhookRoutes);
 
 
 app.use(errorHandler);
