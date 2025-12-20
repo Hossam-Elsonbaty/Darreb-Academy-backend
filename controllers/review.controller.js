@@ -4,15 +4,18 @@ import Course from "../models/Course.js";
 const createReview = async (req, res) => {
   try {
     const { courseId, rating, comment } = req.body;
+    const user = await User.findById(req.user._id);
 
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-
+    if (!user.purchasedCourses.includes(courseId)) {
+      return res.status(403).json({ message: "You must purchase the course to leave a review" });
+    }
     const existingReview = await Review.findOne({
       course: courseId,
-      user: req.user._id,
+      user: user,
     });
 
     if (existingReview) {
@@ -21,7 +24,7 @@ const createReview = async (req, res) => {
 
     const review = await Review.create({
       course: courseId,
-      user: req.user._id,
+      user: user,
       rating,
       comment,
     });
