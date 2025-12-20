@@ -32,7 +32,7 @@ const corsOptions = {
   allowedHeaders: '*',
 };
 
-app.use('/api',cors(corsOptions));
+app.use('/api',cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
