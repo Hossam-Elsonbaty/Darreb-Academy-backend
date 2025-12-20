@@ -34,7 +34,13 @@ const corsOptions = {
 
 app.use('/api',cors());
 
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.path === '/api/webhook') {
+    next(); 
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true }));
 
 connectDB();
@@ -55,7 +61,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoutes);
-app.use("/api/webhooks", webhookRoutes);
+app.use("/api", webhookRoutes);
 
 
 app.use(errorHandler);
