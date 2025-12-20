@@ -5,7 +5,7 @@ const createReview = async (req, res) => {
   try {
     const { courseId, rating, comment } = req.body;
     const user = await User.findById(req.user._id);
-
+    
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
@@ -15,7 +15,7 @@ const createReview = async (req, res) => {
     }
     const existingReview = await Review.findOne({
       course: courseId,
-      user: user,
+      user: req.user._id,
     });
 
     if (existingReview) {
@@ -24,7 +24,7 @@ const createReview = async (req, res) => {
 
     const review = await Review.create({
       course: courseId,
-      user: user,
+      user: req.user._id,
       rating,
       comment,
     });
