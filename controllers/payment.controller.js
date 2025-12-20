@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import Course from "../models/Course.js";
 import User from "../models/User.js";
+import Order from "../models/Order.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const handlePayment = async(req,res)=>{
@@ -87,7 +88,19 @@ const stripeWebhook = async (req, res) => {
       } else {
         console.log("All courses already purchased");
       }
-      
+      // Create an order document
+      const order = await Order.create({
+        orderId: session.id,
+        user: userId,
+        items: courses.map(course => ({
+          course: course._id,
+          title: course.title,
+          price: course.price,
+        })),
+        total: courses.reduce((acc, course) => acc + course.price, 0),
+        paymentMethod: "Stripe",
+        paymentStatus: "completed",
+      });
     } catch (error) {
       console.error("Error processing payment or updating user's courses:", error);
       return res.status(500).send("Error processing webhook event");

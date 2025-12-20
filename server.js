@@ -15,6 +15,7 @@ import wishlistRoutes from "./routes/wishlist.Routes.js";
 import reviewRoutes from "./routes/review.Routes.js";
 import paymentRoutes from "./routes/payment.Routes.js";
 import webhookRoutes from "./routes/webhook.Routes.js";
+import analyticsRoutes from "./routes/analytics.Routes.js";
 
 dotenv.config();
 const app = express();
@@ -62,7 +63,7 @@ app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use("/api", webhookRoutes);
-
+app.use("/api", analyticsRoutes);
 
 app.use(errorHandler);
 
