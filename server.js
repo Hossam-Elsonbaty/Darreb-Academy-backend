@@ -13,6 +13,8 @@ import lectureRoutes from "./routes/lecture.Routes.js";
 import contactUsRoutes from "./routes/contactUs.Routes.js";
 import wishlistRoutes from "./routes/wishlist.Routes.js";
 import reviewRoutes from "./routes/review.Routes.js";
+import paymentRoutes from "./routes/payment.Routes.js";
+import webhookRoutes from "./routes/webhook.Routes.js";
 
 dotenv.config();
 const app = express();
@@ -53,6 +55,8 @@ app.use("/api/contact-us", contactUsRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api", webhookRoutes);
 
 
 app.use(errorHandler);
