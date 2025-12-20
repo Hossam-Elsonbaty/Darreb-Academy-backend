@@ -20,14 +20,14 @@ const getAnalytics = async (req, res) => {
 
     // Total Income from Purchased Courses
     const totalIncome = await Order.aggregate([
-      { $match: { status: "completed" } }, // Only completed orders
+      { $match: { paymentStatus: "completed" } }, // Only completed orders
       { $unwind: "$items" },
       { $group: { _id: null, totalIncome: { $sum: "$items.price" } } }
     ]);
 
     // Purchases Overview (by month)
     const purchasesOverview = await Order.aggregate([
-      { $match: { status: "completed" } },
+      { $match: { paymentStatus: "completed" } },
       { $unwind: "$items" },
       { $group: { _id: { $month: "$createdAt" }, totalPurchases: { $sum: 1 } } },
       { $sort: { _id: 1 } } // Sort by month
@@ -50,7 +50,7 @@ const getAnalytics = async (req, res) => {
 
     // Recent Purchases (for the last 5 purchases)
     const recentPurchases = await Order.aggregate([
-      { $match: { status: "completed" } },
+      { $match: { paymentStatus: "completed" } },
       { $unwind: "$items" },
       { $lookup: { from: "users", localField: "user", foreignField: "_id", as: "userDetails" } },
       { $unwind: "$userDetails" },

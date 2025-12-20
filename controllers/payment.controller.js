@@ -74,13 +74,11 @@ const stripeWebhook = async (req, res) => {
       if (!courses.length) {
         return res.status(404).json({ message: "Courses not found" });
       }
-
       const newCourses = courses.filter(course => 
         !user.purchasedCourses.some(purchased => 
           purchased.toString() === course._id.toString()
         )
       );
-
       if (newCourses.length > 0) {
         user.purchasedCourses.push(...newCourses.map(c => c._id));
         await user.save();
@@ -88,7 +86,6 @@ const stripeWebhook = async (req, res) => {
       } else {
         console.log("All courses already purchased");
       }
-      // Create an order document
       const order = await Order.create({
         orderId: session.id,
         user: userId,
