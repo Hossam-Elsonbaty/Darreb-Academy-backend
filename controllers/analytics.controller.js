@@ -15,48 +15,110 @@ const getAnalytics = async (req, res) => {
     const purchasedCourses = await Order.aggregate([
       { $match: { paymentStatus: "completed" } },
       { $unwind: "$items" },
-      { $group: { _id: null, totalPurchased: { $sum: 1 } } }
+      { $group: { _id: null, totalPurchased: { $sum: 1 } } },
     ]);
 
     // Total Income from Purchased Courses
     const totalIncome = await Order.aggregate([
       { $match: { paymentStatus: "completed" } }, // Only completed orders
       { $unwind: "$items" },
-      { $group: { _id: null, totalIncome: { $sum: "$items.price" } } }
+      { $group: { _id: null, totalIncome: { $sum: "$items.price" } } },
     ]);
 
     // Purchases Overview (by month)
     const purchasesOverview = await Order.aggregate([
       { $match: { paymentStatus: "completed" } },
       { $unwind: "$items" },
-      { $group: { _id: { $month: "$createdAt" }, totalPurchases: { $sum: 1 } } },
-      { $sort: { _id: 1 } } // Sort by month
+      {
+        $group: { _id: { $month: "$createdAt" }, totalPurchases: { $sum: 1 } },
+      },
+      { $sort: { _id: 1 } }, // Sort by month
     ]);
 
-    // Purchases by Category
     const purchasesByCategory = await Order.aggregate([
+      { $match: { paymentStatus: "completed" } },
+
       { $unwind: "$items" },
+
       {
         $lookup: {
           from: "courses",
           localField: "items.course",
           foreignField: "_id",
-          as: "courseDetails"
-        }
+          as: "course",
+        },
       },
-      { $unwind: "$courseDetails" },
-      { $group: { _id: "$courseDetails.category", totalPurchases: { $sum: 1 } } }
+      { $unwind: "$course" },
+
+      {
+        $lookup: {
+          from: "categories",
+          localField: "course.category",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      { $unwind: "$category" },
+
+      {
+        $group: {
+          _id: "$category.name",
+          totalPurchases: { $sum: 1 },
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          totalPurchases: 1,
+        },
+      },
     ]);
 
-    // Recent Purchases (for the last 5 purchases)
     const recentPurchases = await Order.aggregate([
       { $match: { paymentStatus: "completed" } },
-      { $unwind: "$items" },
-      { $lookup: { from: "users", localField: "user", foreignField: "_id", as: "userDetails" } },
-      { $unwind: "$userDetails" },
-      { $project: { "userDetails.fullName": 1, "userDetails.email": 1, "items.course": 1, "items.price": 1, "createdAt": 1 } },
+
       { $sort: { createdAt: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
+
+      { $unwind: "$items" },
+
+      {
+        $lookup: {
+          from: "courses",
+          localField: "items.course",
+          foreignField: "_id",
+          as: "course",
+        },
+      },
+      { $unwind: "$course" },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+
+      {
+        $project: {
+          _id: 1,
+          createdAt: 1,
+          items: {
+            courseId: "$course._id",
+            courseTitle: "$course.title",
+            price: "$items.price",
+          },
+          userDetails: {
+            fullName: "$user.fullName",
+            email: "$user.email",
+          },
+        },
+      },
     ]);
 
     // Send response with all aggregated data
