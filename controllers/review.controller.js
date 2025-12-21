@@ -1,5 +1,6 @@
 import Review from "../models/Review.js";
 import Course from "../models/Course.js";
+import User from "../models/User.js";
 
 const createReview = async (req, res) => {
   try {
