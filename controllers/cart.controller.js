@@ -70,7 +70,7 @@ const removeFromCart = async (req, res) => {
     }
 
     // Find the item in the cart's items array
-    const itemIndex = cart.items.findIndex((item) => item.course.toString() === courseId);
+    const itemIndex = cart.items.findIndex((item) => item.course.toString() === id);
     if (itemIndex === -1) {
       return res.status(404).json({ message: "Course not found in cart" });
     }
