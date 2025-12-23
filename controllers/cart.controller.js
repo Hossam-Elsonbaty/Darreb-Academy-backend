@@ -1,6 +1,8 @@
 import Cart from "../models/Cart.js";
 import Course from "../models/Course.js";
 import mongoose from "mongoose";
+
+
 const getCart = async (req, res) => {
   try {
     let cart = await Cart.findOne({ user: req.user._id }).populate(
@@ -52,47 +54,52 @@ const addToCart = async (req, res) => {
 
 //  remove from cart
 const removeFromCart = async (req, res) => {
-  const { id } = req.params;  
+  const { id: courseId } = req.params;
+  const userId = req.user._id;
+
   try {
-    // Check if the courseId is valid
-    
-    const checkCourseId = mongoose.Types.ObjectId.isValid(id);
-    if (!checkCourseId) {
-      return res.status(400).json({
-        message: "Invalid Course ID, try Again",
-      });
+    // 1. Validate ObjectId early
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid Course ID format." });
     }
 
-    // Find the user's cart
-    const cart = await Cart.findOne({ user: req.user._id });
+    // 2. Find cart and populate course prices to ensure total price is calculated correctly
+    // Alternatively, if you store 'price' inside the items array, you don't need populate.
+    const cart = await Cart.findOne({ user: userId }).populate('items.course', 'price');
+
     if (!cart) {
-      return res.status(404).json({ message: "Cart not found" });
+      return res.status(404).json({ message: "Cart not found." });
     }
 
-    // Find the item in the cart's items array
-    const itemIndex = cart.items.findIndex((item) => item.course.toString() === id);
+    // 3. Check if the item exists in the cart
+    const itemIndex = cart.items.findIndex(item => item.course._id.toString() === courseId);
+
     if (itemIndex === -1) {
-      return res.status(404).json({ message: "Course not found in cart" });
+      return res.status(404).json({ message: "Course not found in your cart." });
     }
 
-    // Remove the course from the cart
-    const course = cart.items[itemIndex].course;  // Get the course to subtract from total price
-    cart.items.splice(itemIndex, 1);  // Remove the course from the cart's items array
-    cart.totalPrice -= course.price;  // Subtract the price of the removed course from the total price
+    // 4. Extract price and remove item
+    // Note: We access .price from the populated course object
+    const itemPrice = cart.items[itemIndex].course.price || 0;
+    
+    // Mongoose pull is cleaner than splice for arrays of subdocuments
+    cart.items.splice(itemIndex, 1);
+    
+    // 5. Update Total Price (with a check to prevent negative balances)
+    cart.totalPrice = Math.max(0, cart.totalPrice - itemPrice);
 
-    // Save the updated cart
     await cart.save();
 
-    // Return the updated cart
-    res.status(200).json({
-      message: "Course removed successfully from cart",
-      cart: cart,  // Optionally return the updated cart
+    // 6. Return response
+    return res.status(200).json({
+      success: true,
+      message: "Course removed successfully",
+      data: cart
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: error.message,
-    });
+    console.error("RemoveFromCart Error:", error);
+    return res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
 
@@ -115,6 +122,7 @@ const removeFromCart = async (req, res) => {
 //     });
 //   }
 // };
+
 
 //  clear cart
 
