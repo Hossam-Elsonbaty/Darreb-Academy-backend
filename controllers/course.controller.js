@@ -175,7 +175,6 @@ const getCourse = async (req, res) => {
   try {
     const courseId = req.params.id;
     // Check if the course exists
-    
     const course = await Course.findById(courseId)
       .populate("instructor", "fullName email")
       .populate("category", "_id")
@@ -188,13 +187,30 @@ const getCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    // Return the course data
-    return res.status(200).json(course);
+    let totalDuration = 0; // In minutes
+    let totalLectures = 0;
+    course.chapters.forEach((chapter) => {
+      chapter.chapter.lectures.forEach((lecture) => {
+        // Assuming the lecture has a 'duration' field in minutes
+        totalDuration += lecture.lecture.duration || 0;
+        totalLectures += 1; // Count each lecture
+      });
+    });
+    const hours = Math.floor(totalDuration / 60);
+    const minutes = totalDuration % 60;
+    const modifiedCourse = {
+      ...course.toObject(), 
+      totalDuration: `${hours} h ${minutes} min`,
+      totalLectures,
+    };
+    // Return the modified course data
+    return res.status(200).json(modifiedCourse);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 const getPurchasedCourses = async (req, res) => {
   try {
     const userId = req.user._id;
