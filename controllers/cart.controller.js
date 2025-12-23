@@ -52,10 +52,11 @@ const addToCart = async (req, res) => {
 
 //  remove from cart
 const removeFromCart = async (req, res) => {
-  const { courseId } = req.params;  // Expect courseId in the body for removal
+  const { id } = req.params;  
   try {
     // Check if the courseId is valid
-    const checkCourseId = mongoose.Types.ObjectId.isValid(courseId);
+    
+    const checkCourseId = mongoose.Types.ObjectId.isValid(id);
     if (!checkCourseId) {
       return res.status(400).json({
         message: "Invalid Course ID, try Again",
