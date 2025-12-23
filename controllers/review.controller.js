@@ -44,6 +44,17 @@ const createReview = async (req, res) => {
   }
 };
 
+const getAllReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find({})
+      .populate("user", "fullName email")
+      .populate("course", "title")
+      .sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 const getCourseReviews = async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -129,4 +140,5 @@ export {
   getCourseReviews,
   updateReview,
   deleteReview,
+  getAllReviews
 };

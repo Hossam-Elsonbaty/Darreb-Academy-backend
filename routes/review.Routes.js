@@ -5,10 +5,12 @@ import {
   getCourseReviews,
   updateReview,
   deleteReview,
+  getAllReviews
 } from"../controllers/review.controller.js";
 import { protect } from "../middleware/auth.js";
 
 router.post("/", protect, createReview);
+router.get("/", getAllReviews);
 router.get("/course/:courseId", getCourseReviews);
 router.put("/:id", protect, updateReview);
 router.delete("/:id", protect, deleteReview);
