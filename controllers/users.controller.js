@@ -3,32 +3,25 @@ import asyncHandler from "express-async-handler";
 import AppError from "../utils/appError.js";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { uploadToCloudinary } from "../config/cloudinary.js";
+import { cloudinary, uploadToCloudinary } from "../config/cloudinary.js";
+import { upload } from "../middleware/imageUpload.js";
+// import multer from "multer";
 
 const createUser = asyncHandler(async (req, res, next) => {
   const { email, password, fullName, profilePic, role } = req.body;
   const userExists = await User.findOne({ email });
   if (userExists) return next(new AppError("User already exists", 409));
-  let profilePicUrl = "";
-  if (profilePic) {
-    try {
-      profilePicUrl = await uploadToCloudinary(profilePic); // profilePic should be the image buffer
-    } catch (error) {
-      return next(new AppError("Error uploading profile picture", 500));
-    }
-  }
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(password, salt);
   const user = await User.create({
     email,
     passwordHash,
     fullName,
-    profilePic: profilePicUrl,
+    profilePic,
     role,
   });
   res.status(201).json(user);
 });
-
 // Get All Users
 const getAllUsers = asyncHandler(async (req, res, next) => {
   let users = await User.find({});
@@ -87,52 +80,99 @@ const updateUser = asyncHandler(async (req, res, next) => {
     data: updatedUser,
   });
 });
+// const upload = multer({ dest: "uploads/" }).single("profilePic");
+// const updateUserProfilePic = asyncHandler(async (req, res, next) => {
+//   const { id } = req.params;
+//   const checkId = mongoose.Types.ObjectId.isValid(id);
+  
+//   if (!checkId) {
+//     return next(new AppError("Invalid user id, try Again", 400));
+//   }
 
-// update user profile image
+//   // Handle file upload via Multer
+//   upload(req, res, async (err) => {
+//     if (err) {
+//       return next(new AppError(err.message, 400));
+//     }
 
+//     // Check if file exists in request
+//     if (!req.file) {
+//       return next(new AppError("No file uploaded", 400));
+//     }
+
+//     try {
+//       // Upload image to Cloudinary
+//       const result = await cloudinary.uploader.upload(req.file.path, {
+//         resource_type: "auto", // This tells Cloudinary to auto-detect file type
+//       });
+
+//       // Prepare update object with Cloudinary URL
+//       const updateObj = { profilePic: result.secure_url };
+
+//       // Find user and update profilePic URL
+//       const updatedUser = await User.findByIdAndUpdate(id, updateObj, {
+//         new: true, // Return the updated user
+//       });
+
+//       if (!updatedUser) {
+//         return next(new AppError("User not found", 404));
+//       }
+
+//       // If old profilePic exists, delete it from Cloudinary
+//       if (updatedUser.profilePic) {
+//         const publicId = updatedUser.profilePic.split("/").pop().split(".")[0]; // Extract publicId
+//         await cloudinary.uploader.destroy(publicId); // Delete old image from Cloudinary
+//       }
+
+//       res.status(200).json({
+//         success: true,
+//         message: "Profile picture updated successfully",
+//         data: updatedUser,
+//       });
+//     } catch (error) {
+//       console.error("Error uploading image:", error);
+//       return next(new AppError("Error uploading image to Cloudinary", 500));
+//     }
+//   });
+// });
 const updateUserProfilePic = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const { profilePic } = req.body;
   const checkId = mongoose.Types.ObjectId.isValid(id);
+  const userExists = await User.findOne({ _id: id  });
   if (!checkId) {
     return next(new AppError("Invalid user id, try Again", 400));
   }
-  const updateObj = {};
-  if (profilePic) updateObj.profilePic = profilePic; // Assuming profilePic is the image buffer
-  const user = await User.findById(id);
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
-  if (user.profilePic) {
-    try {
-      const publicId = user.profilePic.split('/').pop().split('.')[0]; // Extract public_id from URL
-      await cloudinary.uploader.destroy(publicId); // Delete the old image from Cloudinary
-    } catch (error) {
-      return next(new AppError("Error deleting old profile picture", 500));
+  upload.single("profilePic")(req, res, async (err) => {
+    if (err) {
+      return next(new AppError(err.message, 400));
     }
-  }
-  if (profilePic) {
-    try {
-      const profilePicUrl = await uploadToCloudinary(profilePic);
-      updateObj.profilePic = profilePicUrl;
-    } catch (error) {
-      return next(new AppError("Error uploading new profile picture", 500));
+    if (!req.file) {
+      return next(new AppError("No file uploaded", 400));
     }
-  }
-  const updatedUser = await User.findByIdAndUpdate(id, updateObj, {
-    new: true, 
-  });
-  if (!updatedUser) {
-    return next(new AppError("User not found", 404));
-  }
-  res.status(200).json({
-    success: true,
-    message: "Profile updated successfully",
-    data: updatedUser,
+    try {
+      if (userExists.profilePic) {
+        const publicId = userExists.profilePic.split("/").pop().split(".")[0]; // Extract publicId
+        await cloudinary.uploader.destroy(publicId); // Delete old image from Cloudinary
+      }
+      const imageUrl = await uploadToCloudinary(req.file.buffer);
+      const updateObj = { profilePic: imageUrl };
+      const updatedUser = await User.findByIdAndUpdate(id, updateObj, {
+        new: true, // Return the updated user
+      });
+      if (!updatedUser) {
+        return next(new AppError("User not found", 404));
+      }
+      res.status(200).json({
+        success: true,
+        message: "Profile picture updated successfully",
+        data: updatedUser,
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      return next(new AppError("Error uploading image to Cloudinary", 500));
+    }
   });
 });
-
-
 // delete user with id
 // const deleteUser = asyncHandler(async (req, res, next) => {
 //   const { id } = req.params;
@@ -160,14 +200,23 @@ const deleteUser = asyncHandler(async (req, res, next) => {
   }
   if (user.profilePic) {
     try {
-      const publicId = user.profilePic.split('/').pop().split('.')[0]; // Extract public_id from URL
+      const publicId = user.profilePic.split("/").pop().split(".")[0]; // Extract public_id from URL
       await cloudinary.uploader.destroy(publicId); // Delete the profile picture from Cloudinary
     } catch (error) {
-      return next(new AppError("Error deleting profile picture from Cloudinary", 500));
+      return next(
+        new AppError("Error deleting profile picture from Cloudinary", 500)
+      );
     }
   }
   await user.deleteOne(); // Delete the user from the database
   res.status(200).json({ message: "User deleted successfully" });
 });
 
-export { createUser, getAllUsers, getUserById, deleteUser, updateUser,updateUserProfilePic };
+export {
+  createUser,
+  getAllUsers,
+  getUserById,
+  deleteUser,
+  updateUser,
+  updateUserProfilePic,
+};
