@@ -61,5 +61,24 @@ const getProfile = asyncHandler(async (req, res, next) => {
     data: user,
   });
 });
+const getMyPurchasedCourses = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id)
+    .select("purchasedCourses")
+    .populate({
+      path: "purchasedCourses",
+      select: "title title_ar thumbnail price level category instructor rating totalRatings createdAt",
+      populate: [
+        { path: "category", select: "name name_ar" },
+        { path: "instructor", select: "fullName email profilePic" },
+      ],
+    });
+  if (!user) return next(new AppError("User not found", 404));
+  res.status(200).json({
+    success: true,
+    count: user.purchasedCourses.length,
+    data: user.purchasedCourses,
+  });
+});
 
-export { register, login, getProfile };
+
+export { register, login, getProfile, getMyPurchasedCourses};
