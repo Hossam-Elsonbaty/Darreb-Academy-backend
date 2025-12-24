@@ -173,6 +173,30 @@ const updateUserProfilePic = asyncHandler(async (req, res, next) => {
     }
   });
 });
+
+const changeUserPassword = asyncHandler(async (req, res, next) => {
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+  if (!oldPassword || !newPassword || !confirmPassword) {
+    return next(new AppError("Please provide oldPassword, newPassword, confirmPassword", 400));
+  }
+  if (newPassword.length < 8) {
+    return next(new AppError("New password must be at least 8 characters", 400));
+  }
+  if (newPassword !== confirmPassword) {
+    return next(new AppError("New password and confirm password do not match", 400));
+  }
+  if (oldPassword === newPassword) {
+    return next(new AppError("New password must be different from old password", 400));
+  }
+  const user = await User.findById(req.user._id);
+  if (!user) return next(new AppError("User not found", 404));
+  const isMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!isMatch) return next(new AppError("Old password is incorrect", 400));
+  const salt = await bcrypt.genSalt(10);
+  user.passwordHash = await bcrypt.hash(newPassword, salt);
+  await user.save();
+  res.status(200).json({ success: true, message: "Password updated successfully",data:user });
+});
 // delete user with id
 // const deleteUser = asyncHandler(async (req, res, next) => {
 //   const { id } = req.params;
@@ -219,4 +243,5 @@ export {
   deleteUser,
   updateUser,
   updateUserProfilePic,
+  changeUserPassword,
 };
