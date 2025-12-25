@@ -1,6 +1,6 @@
 import express from "express";
 import { protect, authorize } from "../middleware/auth.js";
-import { changeUserPassword, createUser, deleteUser, getAllUsers, getUserById, updateUser, updateUserProfilePic } from "../controllers/users.controller.js";
+import { changeUserPassword, createUser, deleteUser, getAllUsers, getPurchasedCourseDetails, getUserById, updateUser, updateUserProfilePic } from "../controllers/users.controller.js";
 import { getPurchasedCourses } from "../controllers/course.controller.js";
 const router = express.Router();
 
@@ -12,4 +12,5 @@ router.put("/update-pic/:id", protect,updateUserProfilePic)
 router.put("/change-password/:id", protect,changeUserPassword)
 router.delete("/:id", protect, authorize("admin"),deleteUser);
 router.get("/purchased", protect,authorize("admin"), getPurchasedCourses);
+router.get("/me/courses/:courseId", protect, getPurchasedCourseDetails);
 export default router;

@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { cloudinary, uploadToCloudinary } from "../config/cloudinary.js";
 import { upload } from "../middleware/imageUpload.js";
+import Course from "../models/Course.js";
 // import multer from "multer";
 
 const createUser = asyncHandler(async (req, res, next) => {
@@ -47,7 +48,49 @@ const getUserById = asyncHandler(async (req, res, next) => {
 
   res.status(200).json(user);
 });
+// get user purchased course details
+const getPurchasedCourseDetails = asyncHandler(async (req, res, next) => {
+  const { courseId } = req.params; // Get courseId from the request
 
+  // Check if the user has purchased the course
+  const user = await User.findById(req.user._id).populate({
+    path: "purchasedCourses",
+    select: "_id", // Only select course ids for quick lookup
+  });
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  // Check if the courseId is in the purchasedCourses array
+  const courseFound = user.purchasedCourses.some(
+    (course) => course._id.toString() === courseId
+  );
+
+  if (!courseFound) {
+    return next(new AppError("You have not purchased this course", 403)); // Forbidden
+  }
+
+  // If the course is purchased, fetch the course details with chapters and lectures
+  const course = await Course.findById(courseId)
+    .populate("instructor", "fullName email profilePic")
+    .populate("category", "name name_ar")
+    .populate({
+      path: "chapters.chapter",
+      populate: {
+        path: "lectures.lecture",
+      },
+    });
+
+  if (!course) {
+    return next(new AppError("Course not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: course,
+  });
+});
 // update user
 const updateUser = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
@@ -80,61 +123,6 @@ const updateUser = asyncHandler(async (req, res, next) => {
     data: updatedUser,
   });
 });
-// const upload = multer({ dest: "uploads/" }).single("profilePic");
-// const updateUserProfilePic = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params;
-//   const checkId = mongoose.Types.ObjectId.isValid(id);
-  
-//   if (!checkId) {
-//     return next(new AppError("Invalid user id, try Again", 400));
-//   }
-
-//   // Handle file upload via Multer
-//   upload(req, res, async (err) => {
-//     if (err) {
-//       return next(new AppError(err.message, 400));
-//     }
-
-//     // Check if file exists in request
-//     if (!req.file) {
-//       return next(new AppError("No file uploaded", 400));
-//     }
-
-//     try {
-//       // Upload image to Cloudinary
-//       const result = await cloudinary.uploader.upload(req.file.path, {
-//         resource_type: "auto", // This tells Cloudinary to auto-detect file type
-//       });
-
-//       // Prepare update object with Cloudinary URL
-//       const updateObj = { profilePic: result.secure_url };
-
-//       // Find user and update profilePic URL
-//       const updatedUser = await User.findByIdAndUpdate(id, updateObj, {
-//         new: true, // Return the updated user
-//       });
-
-//       if (!updatedUser) {
-//         return next(new AppError("User not found", 404));
-//       }
-
-//       // If old profilePic exists, delete it from Cloudinary
-//       if (updatedUser.profilePic) {
-//         const publicId = updatedUser.profilePic.split("/").pop().split(".")[0]; // Extract publicId
-//         await cloudinary.uploader.destroy(publicId); // Delete old image from Cloudinary
-//       }
-
-//       res.status(200).json({
-//         success: true,
-//         message: "Profile picture updated successfully",
-//         data: updatedUser,
-//       });
-//     } catch (error) {
-//       console.error("Error uploading image:", error);
-//       return next(new AppError("Error uploading image to Cloudinary", 500));
-//     }
-//   });
-// });
 const updateUserProfilePic = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const checkId = mongoose.Types.ObjectId.isValid(id);
@@ -198,20 +186,6 @@ const changeUserPassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, message: "Password updated successfully",data:user });
 });
 // delete user with id
-// const deleteUser = asyncHandler(async (req, res, next) => {
-//   const { id } = req.params;
-//   const checkId = mongoose.Types.ObjectId.isValid(id);
-//   if (!checkId) {
-//     return next(new AppError("Invalid user id, try Again", 400));
-//   }
-
-//   const user = await User.findByIdAndDelete(id);
-
-//   if (!user) {
-//     return next(new AppError(`user with ${id} id not found`, 404));
-//   }
-//   res.status(200).json("user deleted successfully");
-// });
 const deleteUser = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const checkId = mongoose.Types.ObjectId.isValid(id);
@@ -244,4 +218,5 @@ export {
   updateUser,
   updateUserProfilePic,
   changeUserPassword,
+  getPurchasedCourseDetails
 };
