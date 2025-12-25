@@ -111,12 +111,12 @@ const getAllCourses = async (req, res) => {
     const courses = await Course.find()
       .populate("instructor", "fullName email")
       .populate("category", "name name_ar")
-      // .populate({
-      //   path: "chapters.chapter",
-      //   populate: {
-      //     path: "lectures.lecture",
-      //   },
-      // });
+      .populate({
+        path: "chapters.chapter",
+        populate: {
+          path: "lectures.lecture",
+        },
+      });
 
     // Modify each course to include total duration and total lectures
     const modifiedCourses = courses.map((course) => {
@@ -178,12 +178,12 @@ const getCourse = async (req, res) => {
     const course = await Course.findById(courseId)
       .populate("instructor", "fullName email")
       .populate("category", "_id")
-      // .populate({
-      //   path: "chapters.chapter",
-      //   populate: {
-      //     path: "lectures.lecture",
-      //   },
-      // });
+      .populate({
+        path: "chapters.chapter",
+        populate: {
+          path: "lectures.lecture",
+        },
+      });
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
