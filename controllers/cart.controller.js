@@ -89,7 +89,7 @@ const removeFromCart = async (req, res) => {
     cart.totalPrice = Math.max(0, cart.totalPrice - itemPrice);
 
     await cart.save();
-
+    await cart.populate("items.course");
     // 6. Return response
     return res.status(200).json({
       success: true,
