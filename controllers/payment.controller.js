@@ -85,6 +85,7 @@ const stripeWebhook = async (req, res) => {
         console.log("Updated user with new courses:", user);
       } else {
         console.log("All courses already purchased");
+        return res.status(400).json({ message: "You have already purchased these courses" });
       }
       const order = await Order.create({
         orderId: session.id,
