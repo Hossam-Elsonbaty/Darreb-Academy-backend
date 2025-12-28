@@ -50,17 +50,13 @@ const addToCart = async (req, res) => {
     }
     
     const itemPurchased = user.purchasedCourses.includes(courseId);
-    
     if (itemPurchased) {
       return res.status(400).json({ message: "Course already Purchased" });
     }
-    
     cart.items.push({ course: courseId });
     cart.totalPrice += course.price;
     await cart.save();
     await cart.populate("items.course");
-    
-    // ✅ Wrap response in consistent format
     res.json({ 
       success: true,
       data: cart,
