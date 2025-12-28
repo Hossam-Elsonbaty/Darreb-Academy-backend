@@ -10,7 +10,7 @@ router.get("/:id", protect,getUserById);
 router.put("/:id", protect,updateUser)
 router.put("/update-pic/:id", protect,updateUserProfilePic)
 router.put("/change-password/:id", protect,changeUserPassword)
-router.delete("/:id", protect, authorize("admin"),deleteUser);
+router.delete("/:id", protect,deleteUser);
 router.get("/purchased", protect,authorize("admin"), getPurchasedCourses);
 router.get("/me/courses/:courseId", protect, getPurchasedCourseDetails);
 export default router;
