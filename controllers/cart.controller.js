@@ -1,6 +1,7 @@
 import Cart from "../models/Cart.js";
 import Course from "../models/Course.js";
 import mongoose from "mongoose";
+import User from "../models/User.js";
 
 
 const getCart = async (req, res) => {
