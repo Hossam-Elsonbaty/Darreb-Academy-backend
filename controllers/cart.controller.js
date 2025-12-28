@@ -29,6 +29,7 @@ const addToCart = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
     let cart = await Cart.findOne({ user: req.user._id });
+    let user = await User.findOne({ user: req.user._id });
     if (!cart) {
       cart = await Cart.create({
         user: req.user._id,
@@ -41,6 +42,12 @@ const addToCart = async (req, res) => {
     );
     if (itemExists) {
       return res.status(400).json({ message: "Course already in cart" });
+    }
+    const itemPurchased = user.purchasedCourses.find(
+      (item) => item.toString() === courseId
+    );
+    if (itemPurchased) {
+      return res.status(400).json({ message: "Course already Purchased" });
     }
     cart.items.push({ course: courseId });
     cart.totalPrice += course.price;
