@@ -99,10 +99,6 @@ const stripeWebhook = async (req, res) => {
         paymentMethod: "Stripe",
         paymentStatus: "completed",
       });
-      res.status(200).json({
-        message: 'Payment successful',
-        user: user, 
-      });
     } catch (error) {
       console.error("Error processing payment or updating user's courses:", error);
       return res.status(500).send("Error processing webhook event");
