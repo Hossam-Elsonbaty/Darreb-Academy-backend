@@ -178,7 +178,7 @@ const getCourse = async (req, res) => {
     const courseId = req.params.id;
     // Check if the course exists
     const course = await Course.findById(courseId)
-      .populate("instructor", "fullName email")
+      .populate("instructor", "fullName email profilePic")
       .populate("category", "_id")
       .populate({
         path: "chapters.chapter",
