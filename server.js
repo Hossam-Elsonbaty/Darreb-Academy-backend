@@ -22,8 +22,9 @@ const app = express();
 
 const corsOptions = {
   origin: [
-  'https://darreb-academy.vercel.app',
-  'https://darreb-academy-dashboard.vercel.app',
+    'https://darreb-academy.vercel.app',
+    'https://darreb-academy-dashboard.vercel.app',
+    'http://localhost:8081',
   ],
 };
 
