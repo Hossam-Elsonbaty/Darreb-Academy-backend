@@ -60,7 +60,7 @@ const getCourseReviews = async (req, res) => {
     const { courseId } = req.params;
 
     const reviews = await Review.find({ course: courseId })
-      .populate("user", "fullName email")
+      .populate("user", "fullName email profilePic")
       .sort({ createdAt: -1 });
 
     res.json(reviews);
