@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.get("/", getAllCourses);
 router.get("/:id", getCourse);
-router.put("/:id",protect,authorize("admin", "instructor"), updateCourse);
+router.put("/:id",protect,authorize( "instructor"), updateCourse);
 router.delete("/:id", protect, deleteCourse);
-router.post('/create-course',protect,authorize("admin", "instructor"), createCourse);
+router.post('/create-course',protect,authorize( "instructor"), createCourse);
 // router.post(
 //   "/create-course",
 //   protect,

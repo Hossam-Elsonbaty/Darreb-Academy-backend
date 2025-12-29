@@ -10,11 +10,11 @@ import {
   getCourseChapters,
 } from '../controllers/chapters.controller.js'
 
-router.post("/create-chapter", protect, authorize("instructor", "admin"), createChapter);
+router.post("/create-chapter", protect, authorize("instructor"), createChapter);
 router.get("/:id", getChapterById);
 router.get("/", getAllChapters);
 router.get("/:courseId/chapters", getCourseChapters);
-router.put("/:id", protect, authorize("instructor", "admin"), updateChapter);
-router.delete("/:id", protect, authorize("instructor", "admin"), deleteChapter);
+router.put("/:id", protect, authorize("instructor"), updateChapter);
+router.delete("/:id", protect, authorize("instructor"), deleteChapter);
 
 export default router;
