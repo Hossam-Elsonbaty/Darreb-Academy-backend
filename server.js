@@ -22,18 +22,18 @@ const app = express();
 
 const corsOptions = {
   origin: [
-  'http://localhost:4200/',
-  'http://localhost:3000/',
-  'http://localhost:5173/',
-  'http://localhost:3001/',
-  'https://darreb-academy.vercel.app/',
-  'https://darreb-academy-dashboard.vercel.app/',
+  'http://localhost:4200',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:3001',
+  'https://darreb-academy.vercel.app',
+  'https://darreb-academy-dashboard.vercel.app',
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: '*',
 };
 
-app.use('/api',cors());
+app.use('/api',cors(corsOptions));
 
 app.use((req, res, next) => {
   if (req.path === '/api/webhook') {

@@ -5,6 +5,8 @@ import { uploadVideoToCloudinary } from "../config/cloudinary.js";
 
 const createLecture = async (req, res) => {
   try {
+    console.log(req.user.role);
+    
     const { title, title_ar, chapterId } = req.body;
     if (!req.file) {
       return res.status(400).json({ message: "Video file is required" });
