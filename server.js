@@ -25,6 +25,7 @@ const corsOptions = {
     'https://darreb-academy.vercel.app',
     'https://darreb-academy-dashboard.vercel.app',
     'http://localhost:8081',
+    'http://localhost:5173',
   ],
 };
 
