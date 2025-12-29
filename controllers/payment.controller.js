@@ -86,6 +86,19 @@ const stripeWebhook = async (req, res) => {
         console.log("All courses already purchased");
         return res.status(400).json({ message: "You have already purchased these courses" });
       }
+      const updatePromises = newCourses.map(course => 
+        Course.findByIdAndUpdate(
+          course._id,
+          { $inc: { totalEnrollments: 1 } },
+          { new: true }
+        )
+      );
+      const updatedCourses = await Promise.all(updatePromises);
+      console.log("Updated course enrollments:", updatedCourses.map(c => ({
+        id: c._id,
+        title: c.title,
+        totalEnrollments: c.totalEnrollments
+      })));
       const order = await Order.create({
         orderId: session.id,
         user: userId,
