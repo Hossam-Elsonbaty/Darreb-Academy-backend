@@ -29,8 +29,6 @@ const corsOptions = {
   'https://darreb-academy.vercel.app',
   'https://darreb-academy-dashboard.vercel.app',
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: '*',
 };
 
 app.use('/api',cors(corsOptions));
