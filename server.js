@@ -30,8 +30,6 @@ const corsOptions = {
 };
 
 app.use('/api',cors(corsOptions));
-app.use(express.json({ limit: '500mb' }));
-app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use((req, res, next) => {
   if (req.path === '/api/webhook') {
     next(); 
@@ -67,13 +65,10 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log('Cloudinary Name:', process.env.CLOUDINARY_NAME);
   console.log('Cloudinary API Key:', process.env.CLOUDINARY_KEY);
   console.log('Cloudinary API Secret:', process.env.CLOUDINARY_SECRET);
 
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
-server.timeout = 300000; // 5 minutes
-server.keepAliveTimeout = 300000;
-server.headersTimeout = 300000;

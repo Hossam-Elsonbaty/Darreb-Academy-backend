@@ -28,7 +28,7 @@ const handlePayment = async(req,res)=>{
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: "https://darreb-academy.vercel.app/success",
+      success_url: "http://localhost:5173/success",
       cancel_url: "https://darreb-academy.vercel.app/404",
       client_reference_id: userId, 
       metadata: {
