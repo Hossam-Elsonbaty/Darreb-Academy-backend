@@ -27,7 +27,7 @@ const corsOptions = {
   ],
 };
 
-app.use('/api',cors());
+app.use('/api',cors(corsOptions));
 
 app.use((req, res, next) => {
   if (req.path === '/api/webhook') {

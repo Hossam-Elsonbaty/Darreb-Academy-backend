@@ -125,9 +125,11 @@ const getAllCourses = async (req, res) => {
 
       // Calculate total duration and total number of lectures
       course.chapters.forEach((chapter) => {
-        chapter.chapter.lectures.forEach((lecture) => {
+        chapter.chapter?.lectures?.forEach((lecture) => {
+          console.log(lecture);
+          
           // Assuming the lecture has a 'duration' field in minutes
-          totalDuration += lecture.lecture.duration || 0;
+          totalDuration += lecture?.lecture?.duration || 0;
           totalLectures += 1; // Count each lecture
         });
       });
