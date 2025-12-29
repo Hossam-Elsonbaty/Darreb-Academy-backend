@@ -47,7 +47,7 @@ const createReview = async (req, res) => {
 const getAllReviews = async (req, res) => {
   try {
     const reviews = await Review.find({})
-      .populate("user", "fullName email")
+      .populate("user", "fullName email thumbnail")
       .populate("course", "title")
       .sort({ createdAt: -1 });
     res.json(reviews);
